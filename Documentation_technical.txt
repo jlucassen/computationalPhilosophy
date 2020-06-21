@@ -1,0 +1,345 @@
+TECHNICAL DOCUMENTATION
+
+Here I will generally explain what all this stuff does, at the code level. 
+Different experiments will be listed alphabetically, and within each of
+those experiment subsections the functions will be listed alphabetically too. 
+
+TABLE OF CONTENTS
+    3body
+    evoSim
+    reverseBabel
+    sdSim
+
+3body
+    calculateForce
+        Input: two bodies, VPython objects with values representing position
+        assigned to pos and values representing mass assigned to m. 
+
+        Output: force exerted on first body by second body, as a VPython
+        vector. Calculated according to Newton's Law of Universal 
+        Gravitation, using G=1. 
+
+        How it works: Finds relative position vector, converts it to a unit
+        vector, and then plugs into the formula F=Gmm/r**2.
+
+        Known bug: discrete time stepping can break energy conservation. If
+        bodies get very close, they will exert massive forces on each other,
+        causing them to move extremely fast and get far away from each other
+        within one time step, so no equally massive force is applied in the
+        opposite direction as it should be. Increasing time step resolution
+        can actually make this worse, not better, since they can get closer to
+        each other and exert bigger forces before exploding apart. But hey,
+        the goal here is to learn about chaos, not to actually predict any
+        celestial bodies. Explosions are a particularly strong nonlinearity.
+        Ta-da, it's a feature!
+    
+    nBody
+        Input: parameter information for any number of bodies, as a list of
+        dictionaries with values keyed by parameter name. Can also take a 
+        length of time to simulate and a time step to use, but defaults are 
+        100 and 0.01. Required body parameters are pos, vel, and m. Pos and 
+        vel are VPython vectors represeting initial position and velocity,
+        m is a float representing particle mass.
+
+        Output: simulates motion based on initial conditions using VPython to
+        visualize the 3-D motion.
+        
+        How it works: Unwraps parameters from dictionaries and creates scene.
+        Main loop first uses calculateForce to find forces on each body, then
+        uses f=ma to calculate new velocities for each particule, uses new 
+        velocities to find new positions for each particle at next time step,
+        and repeats. VPython takes care of all the animation.
+
+    nBodyParallel
+        Input: parameter information for multiple nBody-like simulations, as a
+        list of lists of dictionaries (I know, ew). Upper level separates the
+        data for each simulation, next level separates data for each body,
+        lowest level contains the values for each parameter. Required fields are
+        exactly the same as nBody - basically just a bunch of nBody simulations
+        stapled together into a list.
+
+        Output: simulates motion of each set of parameters in parallel.
+
+        How it works: Creates separate scenes for each set of parameters and
+        unwraps parameters from dictionaries. Runs much like nBody, but within
+        each time step iterates through each scene to run them all in parallel.
+
+    plotDivergence
+        Input: parameter information for for exactly three bodies. Also takes
+        time and time step, which default to 100 and 0.01. Finally, takes a 
+        list of permutation factors, as a list of floats. 
+        
+        Output: Runs a nBody-like simulation for each factor, multiplying all
+        initial positions and velocities by that factor. Once all sims have run
+        plots the divergence of each perturbed simulation from the original
+        over time using its phase space distance.
+
+        How it works: As sims run, records the history of the system as an
+        18-dimensional phase space vector for each time step. Phase space is
+        composed of position and momentum, for each of three bodies. Once all
+        have run, find the magnitude of the difference between each vector
+        throughout the history of each permutation, and graphs the result.
+
+    threeBodyPlus
+        Input: parameter information for exactly three bodies, as dictionaries
+        keyed by parameter name. Also takes time and time step, default to 100
+        and 0.01. Also takes three booleans, center, plane, and norm, all of
+        which default to False. Required fields are the same as nBody.
+
+        Output: Runs a simulation like nBody, but limited to exactly three
+        bodies. Binary parameters turn on successive extra features. If center
+        is True, a point will trace the center of mass of the system. If center
+        and plane are True, a polygon will indicate the plane of the three
+        bodies, and the center of mass. If all three are True, the camera will
+        stay normal to the plane of the bodies, and their trails will be turned
+        off.
+
+        How it works: Based on nBody. Center of mass position is the average of
+        the bodies' positions, weighted by mass. Plane creates a triangle, with
+        the locations of the bodies as vertices, and adds their colors to help
+        it look more 3-D. Norm gets the cross product of the relative positions
+        of two bodies relative to the COM, and sets it to constant magnitude.
+        Scene camera is kept at the location of the COM plus this vector, and 
+        points in the opposite direction of this vector (towards COM).
+
+evoSim
+    basicSim
+        Input: takes a number of individuals, a number of generations, a
+        mutation probability, and an initial gene maximum. 
+
+        Output: returns the complete history of the simulation as a list of
+        lists of floats - each list represents a generation, with each float
+        in a generation representing an individual.
+        
+        How it works: Each individual is represented by a float, their
+        survival chance. Each generation kills individuals according to their
+        survival chance, and then repopulates back up to the starting number
+        of individuals, with a certain mutation chance. When a mutation occurs
+        a new individual is generated randomly and added.
+
+    plotHistory
+        Input: takes a complete simulation history, a popType string to specify
+        how to interpret, a bool to plot variance or not, a label string, and 
+        a bool to show class plots or not (only matters in trait mode).
+
+        Output: in basic mode, plots the average of the survival chance for
+        each generation in the sim history, and does the same for variance if 
+        told to. Appends the label to the start of each plot title, default is
+        empty string. In poly mode, does the same for each gene individually.
+        Doesn't plt.show(), so user can plot multiple sims before showing. In
+        trait mode, always plots survival gene and trait gene, and if told to
+        make class plots, will also show survival gene and trait gene for class
+        with trait and class without. Shows variance for all if told to, but
+        that's a lot of graphs.
+
+        How it works: in basic mode, pretty much just creates a figure, sets
+        various parameters appropriately, and spits it out. In poly mode,
+        converts to numpy array first to more easuly fetch data as lists on a
+        gene-by-gene basis, but then pretty much does the same. In trait mode,
+        if not showing class plots then very similar to poly mode, but without
+        flexibility in the number of genes plotted. If showing class plots then
+        has to iterate through the whole history and sort data into classes
+        before plotting. 
+
+    plotSliceHistogram
+        Input: a list of individuals representing a generation, and a popType
+        string to specify how to interpret.
+
+        Output: in basic mode, plots and shows a histogram of the population's
+        survival chances. In poly mode, plots each gene as its own histogram.
+
+        How it works: in basic mode, just a wrapper for plt.hist(). In poly
+        mode, converts to numpy array first to more easily fetch data as lists
+        on a gene-by-gene basis.
+
+    polySim
+        Input: takes a number of individuals, a number of generations, a
+        mutation probability, an initial gene max, and a list of gene weights.
+
+        Output: returns the complete history of the simulation as a list of
+        lists of lists of floats. Each list of lists represents a generation,
+        containing lists representing individuals, which contain float genes.
+
+        How it works: each individual is represented as a list of float genes.
+        Each generation, their survival chance is the weighted sum of their
+        genes. Each generation kills individuals according to their survival
+        chance, and then repopulates back up to the starting number, with a
+        certain mutation chance. Mutation individuals are generated randomly.
+
+    printSliceMembers
+        Input: a list of individuals representing a generation
+
+        Output: prints all individuals one by one
+
+        How it works: for loop and print my guy
+
+    printSliceSummary
+        Input: a list of individuals representing a generation, and a popType
+        string to specify how to interpret.
+
+        Output: in basic mode, prints average and variance of individuals'
+        survival chances. In poly mode, prints average and variance for each
+        gene separately.
+
+        How it works: in basic mode, basically a wrapper for statistics.mean.
+        In poly mode, converts to numpy array first to more easily fetch data
+        as lists on a gene-by-gene basis.
+
+    traitSim
+        Input: takes a number of individuals, a number of generations, a
+        mutation probability, and an initial gene max.
+
+        Output: returns the complete history of the simulation as a list of
+        lists of lists. The list representing the whole history contains lists
+        each representing a generation. The generation lists contain lists
+        representing individuals. The individual lists contain a float survival
+        gene, a float trait gene, and a binary trait.
+
+        How it works: each individual is represented as a list, and the trait
+        value is recalculated every generation with probability equal to the
+        trait gene. Each generation kills individuals based on their survival
+        chance, and then repopulates back up to the starting number, with a
+        certain mutation chance. Mutation individuals are generated randomly.
+        The binary trait is completely inert.
+
+reverseBabel
+    generateCorpus
+        Input: first parameter is an alphabet, as a dictionary with symbols
+        as keys and their respective frequencies as their values. These
+        frequencies should sum to 1, or things will break. Second parameter
+        is the initial probability to terminate a word, or the probability
+        to generate a one-letter word. Third parameter is the factor by which
+        word termination probability increases with each additional letter. 
+        Fourth parameter is the number of distinct words that should be
+        generated before corpus generation stops. Default values are tuned 
+        to match natural English.
+
+        Output: an artifical language corpus, as a dictionary with words as
+        keys, and the number of times each word was generated as its value.
+
+        How it works: Generates words by successively appending letters based
+        on their frequencies, increasing the probability of termination until
+        the word is terminated. If a word has been generated before, its value
+        is incremented by 1. Generation continues until a sufficient number of
+        distinct words have been generated.
+
+    generateSentence
+        Input: a corpus, as dictionary of words as keys with the number of 
+        times generated as their values. Also takes an average sentence length,
+        which defaults to 15, to match natural English.
+
+        Output: a sentence from the given corpus, as a list of strings.
+
+        How it works: Determines a sentence length by pulling from a Poisson
+        distribution centered around average sentence length. Pulls words based
+        on their frequencies from the corpus, until sentence length is reached.
+
+    plotCorpus
+        Input: a corpus, as dictionary of words as keys with the number of 
+        times generated as their values. 
+        
+        Output: Plots a distribution of the lengths of the words in the corpus,
+        un-weighted by use. Also makess a Zipf plot of word frequency vs word
+        frequency rank, in both linear and log-log domains. Finally, prints 
+        mean word length, without weighting for usage.
+        
+        How it works: sorts all words in order by length, and by frequency.
+        Plots results using matplotlib.pyplot.
+
+    printSentence
+        Input: a sentence, as a list of strings.
+
+        Output: prints sentence space-delimited, with the first letter
+        capitalized, and with a period at the end.
+
+        How it works: It's basically just a slightly specialized wrapper for
+        str.join(), not gonna lie.
+
+    simExchange
+        Input: a number of samples to attempt.
+
+        Output: the number of sentences generated in one generateCorpus corpus
+        where every word in the sentence is also a member of an independently
+        generated corpus.
+
+        How it works: uses generateCorpus to produce two corpora. From one,
+        generates a sentence, and checks it word-by-word to see if it fits in
+        the other. If any word is not found, the sentence is rejected. Repeats
+        for the specified number of attempts, and then returns the number of
+        successfully matched sentences.
+
+sdSim
+    multiSim
+        Input: a function, and a list of dictionaries containing different 
+        sets of parameters to run that function with.
+
+        Output: Applies each set of parameters to the function, and graphs each
+        case in a separate figure.
+
+        How it works: Unwraps parameters from dict and passes to function, 
+        storing output in a list of dicts. After iterating through all sets of
+        parameters, passes the results list directly to plotMulti to graph.
+
+    plotMulti
+        Input: a list of dicts of lists (ew), where each dict contains the
+        history of all groups for a simulation. 
+
+        Output: plots the data from each simulation on a separate figure, and
+        plots each simulation the same as plotOne.
+
+        How it works: iterates through the dicts in the list, and for each dict
+        corresponding to a simulation iterates through all lists in that dict,
+        plotting the history of each group the same as plotOne.
+
+    plotOne
+        Input: a dict of lists, where each list contains the history for a 
+        group and is keyed by group name.
+
+        Output: graphs each population's history, with labels
+
+        How it works: iterates through all lists in the dict, plotting each
+        on the same figure
+    
+    SEIR
+        Input: a whole bunch of floats. S0 is initial suceptible population,
+        E0 is initial exposed, I0 is initial infected, R0 is initial recovered.
+        ic is incubation coefficient, reciprocal of incubation period in days.
+        cc0 is a component of the contact coefficient, found by R0*rc. rc is
+        recovery coefficient, reciprocal of recovery time in days. t is number
+        of days to simulate.
+
+        Output: graphs all populations at each time step, according to SEIR
+        epidemiological model
+
+        How it works: determines change in each population according to SEIR
+        equations, stores each population's history in a list, returns a dict
+        of all population lists, keyed by population name.
+
+    SEIRD
+        Input: the same as SEIR(), but includes D0 for initial casualties, 
+        dc as the death coefficient, medCap as the capacity of the medical
+        system, and medRate as the hospitalization rate of the disease.
+
+        Output: Graphs all populations at each time step, according to SEIR
+        model modified to account for deaths and not just recoveries.
+
+        How it works: exactly the same as SEIR, but adds an extra bin and an
+        extra equation to calculate how many people die and how many recover
+        when leaving the I group. Death rate is based 
+
+    SEIRD_sd
+        Input: the same as SEIRD_sd(), but includes sd as the max social
+        distancing factor, lag as the social distancing policy decision making
+        lag, and step as the interval between adjustments made to social
+        distancing policy.
+
+        Output: Graphs all populations at each time step, affected by social
+        distancing policies
+
+        How it works: Social distancing coefficient scales inversely with
+        proportion of population infected, from 1 at 0% to 1/sd at 100%. New 
+        infections are multiplied by the social distancing coefficient. Social
+        distancing policy is updated periocidally according to step, and made
+        based on old data according to lag. If lag>0, social distancing policy
+        is suppressed entirely for at the start for the lag duration, as there
+        is no data available.

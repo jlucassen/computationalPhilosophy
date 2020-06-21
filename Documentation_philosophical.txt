@@ -1,0 +1,111 @@
+PHILOSOPHICAL DOCUMENTATION
+
+Here I will lay out how each of these experiments was supposed to function as as
+philosophical tool. What I wanted to learn, what I actually learned, further
+questions, sources of inspiration, and other notes on things like that. 
+Experiments will be listed alphabetically, and rambled about in relentless
+paragraphs.
+
+TABLE OF CONTENTS
+    3body
+    evoSim
+    reverseBabel
+    sdSim
+
+3body
+    Started this after reading Cixin Liu's book The Three Body Problem. Goal
+    was to explore the three-body problem and chaos in general, not with a
+    specific question in mind but just to understand it better and see where
+    my thinking took me as the project progressed. After making nBody and 
+    nBodyParallel, I had a pretty good way to visualize how tiny perturbances
+    could make the whole system diverge over time. To try and get more insight,
+    I then started looking for alternative visualizations. The goal of 
+    threeBodyPlus's plane and norm modes were to explore whether the problem
+    could be compressed into two dimensions, since all three bodies and their
+    center of mass are always coplanar. I think the answer to that is probably
+    "no" - the norm mode is pretty incomprehensible. With plotDivergence, I 
+    wanted to play with phase space a little and also quantitatively visualize
+    the divergence of the system. The divergence is, of course, also irregular
+    and chaotic, and seems prone to sudden explosions (usually ejecting bodies)
+    as well as stable (even smooth!) periods. Interesting connection to 
+    Nassim Nicholas Taleb's work - these explosions are analogous to Black
+    Swans, but don't just occur when the perturbed system unexpectedly ejects
+    a body, but also when the original system ejects a body and the perturbed
+    system fails to. Black Swans occur both when something unexpected happens
+    or something expected fails to happen. During this project I came up with
+    an idea for "honing" a chaotic system, but I'll have to try it out in a 
+    less computationally intensive system, like the Lorenz equations.
+
+evoSim
+    This was my second project of this type, inspired by the research proposal
+    I put together to apply to a summer fellowship at the Future of Humanity
+    Institute, and heavily based on the model of evolution we worked with in 
+    Bio 52 at Mudd. The original goal was to understand evolution better, and
+    to see if references classes besides "existence" could show similar
+    behavior. I think I do now understand evolution better, so we achieved that
+    goal. Let me explain the second goal a bit more - in high school, I was
+    being existential and angsty, and was looking to biology for some idea of a
+    meaning to life that would be "based on science". I thought it was
+    interesting how every living organism has this "goal" of surviving, and how
+    that goal seems to arise necessarily from logic. If a given pattern is good
+    at self-replicating, we'll observe it when we look around (at all existing
+    things). If a pattern has some other goal, like crochet or suicide, we 
+    won't observe it, since we don't observe things that aren't good at
+    existing. I've since moved on from the existentialist side of this idea,
+    which is pretty hopelessly pseudoscientific. But the idea is still
+    interesting - what if we focus our attention on a specific class other than
+    all things that exist? Could a similar effect take place? This could have
+    important consequences, since we do care about the what compositions of
+    classes besides all humans look like in the future, such as the class of
+    wealthy or powerful humans. Would they evolve to tend towards hoarding
+    wealth or power by this weird trait-amplifying effect? Turns out, no. The
+    class of existence is special. In order to display a selection effect, a
+    class needs a way to permanently exclude low genes, which will amplify the
+    high ones as a result. However, failing to crochet or maintain power/wealth
+    doesn't preclude the rest of your genetic line from ever doing so again,
+    while failing to survive makes it impossible that a descendant of yours
+    will survive successfully (really, I'm bundling "survive and reproduce"
+    into the word "survive"). As a result, we don't have to worry about the
+    rich and powerful of the deep future of humanity selecting to become brutal
+    and power-hungry by some inevitable evolutionary force. Another takeaway is
+    that many of the exact details of how you produce a selection effect within
+    some system are superfluous - the key is some way to Permanently eliminate
+    unfit individuals.
+
+reverseBabel   
+    This one was actually part of my final research project for History of
+    Literacy Technologies. The goal was to evaluate a thought experiment 
+    outlined by Jorge Luis Borges in The Library of Babel, in which he suggests
+    that two people might fail to communicate without knowing it if they speak
+    different languages that use the same symbols, and just happen to line up
+    the right way. This simulation was designed to evaluate approximately how
+    unlikely something like this would actually be (hint: ~0.08%). This was
+    actually really interesting to make, as I had to figure out how empirical
+    vs ground-up I wanted to be. The heart of this, generateCorpus, hinges on
+    an interesting observation made by Benoit Mandelbrot - the Zipf
+    distribution of natural language arises naturally in random corpora that
+    are generated a certain way! This allowed me to significantly cut down on
+    the empirical data necessary, since otherwise I would've had to use an
+    empirical letter distribution, word length distribution, and word frequency
+    distribution, which would basically amount to multiplying a bunch of curves
+    together but would require some really weird mapping. I much prefer this
+    method. Ultimately, the simulation confirmed my intuition that Borges'
+    thought experiment would be extremely unlikely (even missing several
+    important filters, like grammar and content!), and allows us to resolve the
+    problem it poses for the rational integrity of language, at the cost of
+    viewing language as heuristic rather than a pure Platonic activity. This
+    turns out to be the starting point for a series of recontextualizations of
+    language, however, which ultimately pose some really interesting questions
+    about the foundations of human rationality. Really enjoyed this project.
+
+sdSim
+    Aimed to understand the COVID-19 pandemic a little better, and learn some
+    epidemiology along the way. In particular, wanted to consider the risk of
+    a second wave of infections as social distancing relaxes, due to the steppy
+    and delayed nature of social distancing policy reactions. After running
+    some sims to account for the disease itself (SEIR and SEIRD), and social
+    distancing in both idealized and more realistic forms (SEIRD_sd, with lag
+    and step modes), this worry of a second wave seemed largely immaterial.
+    Oscillations on the way down like I was imagining require some really
+    extreme parameters, and the real life lag and steppiness are bad, but 
+    nowhere near that bad.
