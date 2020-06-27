@@ -9,6 +9,9 @@ paragraphs.
 TABLE OF CONTENTS
     3body
     evoSim
+    findIsland
+    lookElsewhere
+    lorenz
     reverseBabel
     sdSim
 
@@ -72,6 +75,102 @@ evoSim
     some system are superfluous - the key is some way to Permanently eliminate
     unfit individuals.
 
+findIsland
+    This project is a sort of follow-up on reverseBabel. Not an experiment
+    exactly, more a demonstration of a principle that usually lives in a more
+    philosophical, 'soft' region of idea-space. This principle is the circular
+    nature of relational definitions: the idea that since we can only define
+    words in terms of other words, every word is eventually defined in terms of
+    itself. For example, if the definition of 'truth' is 'fact' and the 
+    definition of 'fact' is 'truth' that's clearly a circular and meaningless
+    definition. If A is defined as B, B is defined as C, and C is defined as A,
+    that's also circular. The idea is that if you dig deep enough, eventually
+    an 'island' will form, when you have a set of words whose definitions only
+    include each other, and are thus all circular. An island is a set of words
+    that is closed under definition. Hence, all definitions are circular, since
+    the biggest possible island is the whole dictionary, so every word has a
+    finite island. I aimed with this project to actually find the size of a 
+    given island, but unfortunately the API limits me to 1000 queries per day,
+    and most or all islands are bigger than that. Bypassing the API and just 
+    scraping the HTML is dubious practice, and would probably be way too slow 
+    anyway. So I suppose I'll have to leave this project half-complete. On the
+    bright side, I imagine that watching the process for the few cycles that
+    the API might serve as an effective demonstration of the principle anyway,
+    since it's not hard to put together where the process is leading.
+
+lookElsewhere
+    This project was meant to investigate a claim made by Taleb in Antifragile,
+    where he said that the number of false correlations increases with positive
+    concavity with the number of variables tested, and that existing methods
+    like the Bonferroni correction don't work to mitigate these false results.
+    The first part seems to be true - the more variables I tested, the more
+    false correlations I saw, and the curve roughly matched NNT's. I wondered
+    if this effect could be mitigated by using more data, and interestingly it
+    was completely unaffected! I made plotEffect2d first, actually, and then
+    made plotPointEffect to confirm more confidently that the amount of data
+    involved did not impact the rate of false correlations. I then moved on
+    to the bonferroni correction, and wasn't able to find any flaw with it.
+    This doesn't necessarily mean there is no flaw, but NNT doesn't really 
+    explain the problem he sees, and I couldn't find one. In fact, the number
+    of false correlations I found in plotVarEffect scaled exactly with the 
+    number of correlations I tested, with a scale factor of 0.05, which 
+    suggests the Bonferroni correction works completely. I suppose the problem
+    could be that people simply don't use the Bonferroni correction if they're
+    not familiat with the look-elsewhere problem, or if they don't realize it
+    applies to their situation.
+
+lorenz
+    This was such an interesting project! It's a continuation of 3body, since
+    the three-body problem was a bit too complicated to make a general study of
+    chaos with. I started by just trying to reproduce the images I'd seen on 
+    the internet of the Lorenz attractor, since it's pretty cool looking and
+    vPython is a great 3-d visualization tool. Next I mapped the vector field
+    of the system, trying to see if the butterfly structure would be at all
+    visible - it wasn't really, the field is mostly dominated by the two curls
+    at extreme x-values, and the area of the butterfly has much smaller, less
+    straightforwardly arranged vectors. States did appear to travel along flow 
+    lines though, which was a good sanity check. Next I tried graphing the
+    divergence over time, the same as I did with 3body. The error had this 
+    really interesting tendency to stay low for a long time, and the suddenly
+    explode into chaos. That was surprising - I expected it to just increase
+    in some consistent way, roughly exponentially. This led to the hypothesis
+    that the divergence happened mainly in specific regions of xyz space. I
+    also tested what graphs with different initial distances looked like, and
+    it seemed that decreasing the error by a certain factor typically delayed
+    the error explosion by a constant amount of time. Hence, accuracy would
+    have to increase exponentially to push the accurate prediction horizon out
+    linearly. Next, I tested how different configuration of the system behaved,
+    and found a really robust pattern (see Figures). The areas where states
+    became trapped or exploded quickly seemed pretty constant with changes in
+    rho, but the "peninsula" where the common 28,10,8/3 configuration is found
+    and where the butterfly shape is found seemed to grow with rho. Finding
+    that this simple "time-to-explosion" method was able to predict whether the
+    system would be butterfly-shaped or not was pretty cool! Next, I tested my
+    earlier hypothesis that specific regions were responsible for divergence,
+    and got a tentative confirmation: the "time to explosion" for a small
+    separation seemed much smaller than anywhere else along the z-axis, and
+    in this specific line aligned with the diagonal tilt of the butterfly
+    around z=10. That was a pretty cool result too. My favorite result, though,
+    was from my attempt to determine whether the destinations of a sample of
+    states would form a sort of fractal if color-coded, since chaos is supposed
+    to blow infinitesimal differences up over time. That kind of "roughness"
+    seemed like it would probably be a fractal, rather than just random - in
+    fact, it couldn't be random, since the system is deterministic. I was also
+    curious about how the transition from being continuous in the short term to
+    discontinuous in the long term would happen. What I found was that certain
+    regions tend to stick closly together, with very sharply diverging dividing
+    regions between them. As time goes on, the regions that stick together get
+    smaller and smaller, and the divides have to get sharper and sharper. I'd
+    imagine that after infinite time, the groups would shrink to single points,
+    and the slope of the dividing regions would increase to infinity. Thus, the
+    result only becomes a "true" fractal after infinite time. Interestingly,
+    the pattern seemed pretty simple and consistent - diagonal bands that got
+    narrower and narrower. This means that measurement error in some directions
+    is much more important than others for trying to make accurate predictions,
+    and we can find out which directions are more or less important pretty
+    easily. This was such a fun project, there was so much depth and stuff to 
+    explore beyond what I originally intended. 
+
 reverseBabel   
     This one was actually part of my final research project for History of
     Literacy Technologies. The goal was to evaluate a thought experiment 
@@ -108,4 +207,5 @@ sdSim
     and step modes), this worry of a second wave seemed largely immaterial.
     Oscillations on the way down like I was imagining require some really
     extreme parameters, and the real life lag and steppiness are bad, but 
-    nowhere near that bad.
+    nowhere near that bad. I suppose that means that if we do end up seeing 
+    oscillation, that the lag and steppiness must in fact be pretty bad.

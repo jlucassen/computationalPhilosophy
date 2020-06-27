@@ -7,6 +7,9 @@ those experiment subsections the functions will be listed alphabetically too.
 TABLE OF CONTENTS
     3body
     evoSim
+    findIsland
+    lookElsewhere
+    lorenz
     reverseBabel
     sdSim
 
@@ -202,6 +205,235 @@ evoSim
         certain mutation chance. Mutation individuals are generated randomly.
         The binary trait is completely inert.
 
+findIsland 
+    findIsland
+        Input: void to the function itself, but takes in an api key and a root
+        word through the terminal
+
+        Output: identifies the size of the "island" centered around the root
+        word
+
+        How it works: passes words through three lists, called island, shore,
+        and sea. Island and sea start empty, shore starts as just the root
+        word. Uses the Merriam Webster Dictionary API to fill the sea with all
+        words used in all the definitions of the words in the shore that are 
+        not already included in the sea, shore, or island. Then shore is added
+        to island, sea becomes shore, and sea is emptied before next cycle. 
+        Continues until a cycle tries to start with shore empty, meaning no new
+        words were found in the previous cycle.
+
+lookElsewhere
+    basic
+        Input: takes in a number of variables, a number of data points per
+        variable, a target p-value, and a boolean to specify whether or not to
+        display the strongest correlation found.
+
+        Output: prints the number of false correlations that arise between the
+        variables that are considered significant based on the p-value. If 
+        showBest is True, will display the data that displayed the strongest
+        correlation
+
+        How it works: generates random data for each variable, and iterates
+        through all pairs of data testing for a significant correlation. Counts
+        the number found, and reports it. If showBest is True, also tracks the
+        most impressive correlation, and displays it at the end.
+    
+    plotEffect2d
+        Input: takes in a maximum number of variables, a maximum number of data
+        points, a step to increment variables by, a step to increment data 
+        points by, and a boolean to indicate whether to use the Bonferroni
+        correction or not.
+
+        Output: Graphs the number of false correlations that arise at each 
+        combination of variables tested and data points per variable
+
+        How it works: Iterates from 2 variables and 3 data points up through
+        the maxima, stepping each by the appropriate interval. Calls basic()
+        to count the number of false correlations that arise, using p < 0.05.
+        If Bonferroni is turned on, calls basic with 0.05/(numVars choose 2) as
+        the p-value, since there is a hypothesis being tested for each pair of
+        variables.
+
+    plotPointEffect
+        Input: takes in a number of variables to use, a maximum number of data
+        points, a number to increment points by, a number of times to repeat
+        each trial, a number of derivatives to show, and a boolean to use the
+        Bonferroni correction or not.
+
+        Output: Graphs the number of false correlations that arise at each
+        number of data points from 3 up to maxPoints, stepping by pointStep.
+        Plots the number of derivatives specified as well.
+
+        How it works: Iterates from 3 (min number of points for pearson to give
+        a meaningful assessment of correlation) up through maxPoints, stepping
+        up by pointStep. Each time, calls basic() to count the number of false
+        correlations that show up. Uses p < 0.05. Repeats each trial 'repeat'
+        times, since higher derivatives need accuracy. Plots results, and also
+        plots the number of derivatives specified. If Bonferroni is turned on,
+        calls basic with 0.05/(numVars choose 2) as the p-value, since there is
+        a hypothesis being tested for each pair of variables.
+
+    plotVarEffect
+        Input: takes in a maximum number of variables, a number of data points,
+        a step to increment the variables used by, a number of times to repeat
+        each trial, a number of derivatives to show, and a boolean to use the
+        Bonferroni correction or not.
+
+        Output: Graphs the number of false correlations that arise at each
+        variable number from 2 up to maxVars, stepping by varStep. Plots the
+        number of derivatives specified as well.
+
+        How it works: Iterates from 2 (min # of variables to have a pair to
+        test) up through maxVars, incrementing by varStep. Each time, calls
+        basic() to count the number of illusory correlations that show up. 
+        Calls basic with a p value of 0.05, since that's the standard. Repeats
+        each trial 'repeat' times, and averages the results, since accuracy is
+        needed to plot higher derivatives. Plots results, and also plots the
+        specified number of derivatives. If the Bonferroni correction is turned
+        on, calls basic with 0.05/(numVars choose 2) as the p-value, since
+        there is a hypothesis being tested for each pair of variables.
+
+lorenz
+    errorExplosion
+        Input: system parameters rho, sigma, and beta, an amount of time to
+        simulate, and a time step size to use.
+
+        Output: graphs the distances between a randomly selected "anchor"
+        state somewhere within a 10x10x10 cube of the origin, and three other
+        states separated from it in all three dimensions by progressively
+        smaller amounts (0.01, 0.00001, 0.00000001)
+
+        How it works: basically just a wrapper for trackError. Picks an anchor
+        state at random, and then calls trackError three times, for the three
+        incremental errors.
+
+    mapField
+        Input: system parameters rho, sigma, and beta, as well as a zone to map
+        the field in, a spacing between points shown, and a bunch of booleans
+        that indicate whether to show colors or not, show arrows or spheres,
+        and scale vectors to the same length or not. Also a scale for the size
+        of the arrows/spheres, and a center for the zone of mapping as an array
+        of coordinates.
+
+        Output: draws the field accordingly, either color-coded or white,
+        arrows or spheres, unit vectors or vectors with their magnitude scaled.
+
+        How it works: iterates through the coordinates from -zone to zone for
+        x, y, and z, incrementing by the spacing. At each location, call move()
+        to determine the vector there. If colors are turned on, codes the 
+        direction of the vector into a color. Draws the representation it's
+        told to by all those setting parameters with vPython.
+
+    move
+        Input: an x-coordinate, y-coordinate, and z-coordinate, as well as the
+        system parameters rho, sigma, and beta
+
+        Output: the x,y,z derivatives, as a list
+
+        How it works: plugs into the Lorenz equations
+
+    multiSim
+        Input: a list of lists of numbers containing starting coordinates, and
+        the parameters rho, sigma, and beta, an amount of time to simulate, the
+        size of the discrete time step to use, a value to determine if/how to 
+        plot the vector field, and a frame rate to use.
+
+        Output: animates the evolution of the starting states according to the
+        system parameters given. Runs until the end of the time allotted, using
+        the discrete time step given. If left to default, field will not be
+        plotted, but if user passes in an argument dictionary, calls mapField()
+        using those parameters to show the vector field superimposed onto the
+        movement of the state.
+
+        How it works: Basically just loops and ticks through the time, on each
+        tick iterates through each of the states being simulated, and for each,
+        calls move() and passes in the appropriate parameters, then updates the
+        positions of the vPython objects accordingly.
+
+    paramPlaneStability
+        Input: two starting states as coordinate lists, the system parameter
+        rho, an amount of time to simulate, a time step to use, a zone to test
+        (in sigma-beta parameter space), and a threshold for when two states 
+        are considered separated.
+
+        Output: produces a 2-d heatmap of sigma-beta parameter space, where the
+        color of each space represents the log of the time it takes for the two
+        states given to separate by the given threshold, in a system with the
+        parameters indicated (r is fixed since it seems to be important that
+        r=28, online sources mention that the lorenz attractor is chaotic for
+        this specific value of r). If a configuration doesn't separate in the
+        time given, it is assigned the maximum value. Log used because times
+        vary so much.
+
+        How it works: iterates through each combination of s and b, runs a sim
+        with those parameters using lists, not vPython, and checks distance
+        between the two states that were given at each time step. If threshold
+        exceeded, stops simulation and records time. When all done, plots 
+        heatmap.
+
+    singleSim
+        Input: a starting x-coordinate, y-coordinate, and z-coordinate, as well
+        as the system parameters rho, sigma, and beta, an amount of time to
+        simulate, the size of the discrete time step to use, a value to
+        determine if/how to plot the vector field, and a frame rate to use.
+
+        Output: animates the evolution of the starting state according to the 
+        system parameters given. Runs until the end of the time allotted, using
+        the discrete time step given. If left to default, field will not be
+        plotted, but if user passes in an argument dictionary, calls mapField()
+        using those parameters to show the vector field superimposed onto the
+        movement of the state.
+
+        How it works: Basically just loops and ticks through the time, on each
+        tick calls move() and passes in the appropriate parameters, then
+        updates the positions of the vPython objects accordingly.
+
+    spatialPlaneFractal
+        Input: a z-coordinate, rho, sigma, and beta, a time to simulate, a time
+        step to use, zone half edge length, a spacing between observations, and
+        a center for the zone to represent.
+
+        Output: produces a 2d heatmap of the x-y plane, where the color of each
+        space represents where in 3-space it ends up after the amount of time
+        specified. Goal was to try and determine how adjacent states diverge
+        over time.
+
+        How it works: iterates through each combination of x and y, runs a sim
+        with those start coordinates, and records where it ends up in 3-space.
+        Keeps track of the most extreme + and - x, y, and z values. After all
+        sims have run, iterates through all the coordinates and scales x, y, z
+        to fall between 0 and 1, so they can be taken as RGB colors. Produces
+        heatmap with those colors.
+
+    spatialPlaneStability
+        Input:a z-coordinate, as well as system parameters rho, sigma, and
+        beta, a time to simulate, a time step to use, a zone to simulate, and
+        a threshold at which states are considered separated.
+
+        Output: produces a 2d heatmap of the x-y plane, where the color of each
+        space represents the time it takes two slightly separated starting
+        states to diverge. Goal is to see if divergence of states is continuous
+        or if there's certain regions where states tend to diverge.
+
+        How it works: iterates through each combination of x and y, runs a sim
+        with those start coordinates (0.001 apart) using lists, checks distance
+        between the two states that were given at each time step. If threshold
+        exceeded, stops simulation and records time. When all done, plots 
+        heatmap.
+
+    trackError
+        Input: two starting states, as lists of coordinates, as well as the
+        system parameters rho, sigma, and beta, an amount of time to simulate,
+        and a time step to use
+
+        Output: Graphs the magnitude of the distance between the two states
+        over time
+
+        How it works: runs each simulation in parallel by stepping through time
+        and calling move(), just like multiSim, but stores info in lists, not
+        vPython objects. Records the distance between the two calculated by
+        pythagorean theorem, and plots the results at the end.
+
 reverseBabel
     generateCorpus
         Input: first parameter is an alphabet, as a dictionary with symbols
@@ -339,7 +571,7 @@ sdSim
         How it works: Social distancing coefficient scales inversely with
         proportion of population infected, from 1 at 0% to 1/sd at 100%. New 
         infections are multiplied by the social distancing coefficient. Social
-        distancing policy is updated periocidally according to step, and made
+        distancing policy is updated periodically according to step, and made
         based on old data according to lag. If lag>0, social distancing policy
         is suppressed entirely for at the start for the lag duration, as there
         is no data available.
